@@ -5,12 +5,9 @@ import com.learningapi.learningapi.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 public class BoardController {
@@ -19,13 +16,19 @@ public class BoardController {
     private BoardRepository boardRepository;
 
     @RequestMapping("/devices")
-    public List<Board> findAllBoards() {
+    public Map<String, Board> findAllBoards() {
         return boardRepository.findAll();
     }
 
     @RequestMapping(path="/salute", method=RequestMethod.POST)
-    public ResponseEntity<Board> salute(@RequestBody Board board) {
-        boardRepository.save(board);
+    public ResponseEntity salute(@RequestBody Board board) {
+        try {
+            boardRepository.save(board);
+        } catch (Exception e) {
+            throw new BoardAlreadyExistsException(e.getMessage());
+//            return new ResponseEntity(e.getMessage(),HttpStatus.CONFLICT)
+        }
         return new ResponseEntity<Board>(board, HttpStatus.CREATED);
     }
+
 }
